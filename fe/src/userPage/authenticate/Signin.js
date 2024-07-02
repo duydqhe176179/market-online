@@ -1,5 +1,7 @@
-import Footer from "./Footer";
+import Footer from "../Footer";
 import React, { useState } from 'react';
+import { Spin } from "antd"
+
 import {
     MDBContainer,
     MDBRow,
@@ -11,14 +13,21 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Container, Form } from "react-bootstrap";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import {signin} from "../../redux/Slice/auth"
 
 export default function Signin() {
     const nav = useNavigate()
+    const dispatch = useDispatch()
+    const [loading, setLoading] = useState(false);
     const [account, setAccount] = useState({
         "username": "",
         "password": ""
     })
-
+    const [error, setError] = useState({
+        "code": "", // 1: cho phép submit, 0: chặn submit
+        "message": ""
+    })
     const { username, password } = account
 
     const onInputChange = (e) => {
@@ -26,21 +35,39 @@ export default function Signin() {
     }
 
     const login = async (e) => {
+        setLoading(true)
         e.preventDefault();
-        const response = await axios.post("http://localhost:8080/signin", account)
-        console.log(response);
-        if (response.token) {
-            localStorage.setItem('token', response.token);
-            nav("/")
-            // Redirect to a protected route
-        } else {
-            alert('Login failed');
-        }
+        console.log(account);
+        const hash = btoa(`${account.username}:${account.password}`);
 
+        try {
+            const response = await axios.post("http://localhost:8080/signin", {},
+                {
+                    headers: {
+                        Authorization: `Basic ${hash}`,
+                    },
+                })
+            console.log(response);
+            if (response.data === "Tên đăng nhập hoặc mật khẩu không đúng") {
+                setError({ code: 1, message: "Tên đăng nhập hoặc mật khẩu không đúng" })
+            } else if (response.data === "Xảy ra lỗi khi đăng nhập") {
+                setError({ code: 1, message: "Xảy ra lỗi khi đăng nhập" })
+            } else {
+                // localStorage.setItem("token", response.data.token);
+                // localStorage.setItem("role", response.data.role);
+                // localStorage.setItem("userId", response.data.id);
+                dispatch(signin(response.data))
+                nav("/")
+                // Redirect to a protected route
+            }
+        } catch (error) {
+            console.log(error);
+        }
+        setLoading(false)
     }
 
     return (
-        <div>
+        <Spin spinning={loading}>
             <div style={{ backgroundColor: "#FBFBFB", padding: "15px" }}>
                 <Container>
                     <div style={{ display: "flex" }}>
@@ -64,10 +91,11 @@ export default function Signin() {
 
                             <h3 className="fw-normal mb-3 ps-5 pb-3" style={{ letterSpacing: '1px' }}>Đăng nhập</h3>
 
-                            <MDBInput name="username" value={username} onChange={onInputChange} wrapperClass='mb-4 mx-5 w-100' type='text' size="lg" placeholder="Email/ Tên đăng nhập/ Số điện thoại" />
+                            <MDBInput name="username" value={username} onChange={onInputChange} wrapperClass='mb-4 mx-5 w-100' type='text' size="lg" placeholder="Tên đăng nhập" />
                             <MDBInput name="password" value={password} onChange={onInputChange} wrapperClass='mb-4 mx-5 w-100' type='password' size="lg" placeholder="Mật khẩu" />
+                            {error.message && <p style={{ color: 'red', marginLeft: "50px" }}>{error.message}</p>}
 
-                            <Button className="mb-4 px-5 mx-5 w-100" style={{ backgroundColor: '#FC5731', color: 'white' }} color='info' size='lg' type="submit">Đăng nhâp</Button>
+                            <Button className="mb-4 px-5 mx-5 w-100" style={{ backgroundColor: '#FC5731', color: 'white' }} color='info' size='lg' type="submit"> {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}</Button>
                             <p className="small mb-5 pb-lg-3 ms-5"><a className="text-muted" href="#!">Quên mật khẩu</a></p>
                             <p className='ms-5'>Không có tài khoản? <Link to={"/signupS"} className="link-info">Đăng ký</Link></p>
 
@@ -85,6 +113,5 @@ export default function Signin() {
             </MDBContainer>
             <br /><br />
             <Footer />
-        </div>
-    )
+        </Spin>)
 }

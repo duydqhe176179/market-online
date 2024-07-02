@@ -2,6 +2,7 @@ package com.duy.shopping.model;
 
 import jakarta.persistence.*;
 
+
 import java.util.List;
 
 @Entity
@@ -10,6 +11,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+
     private String image;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)

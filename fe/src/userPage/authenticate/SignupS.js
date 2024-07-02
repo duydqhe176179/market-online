@@ -1,4 +1,4 @@
-import Footer from "./Footer";
+import Footer from "../Footer";
 import React, { useEffect, useState } from 'react';
 import {
     MDBContainer,
@@ -18,15 +18,25 @@ export default function SignupS() {
     const nav = useNavigate()
     const [account, setAccount] = useState({
         "phone": "",
+        "username": "",
         "password": ""
     })
     const [allAccount, setAllAccount] = useState([])
-    const [error, setError] = useState({
+    const [errorSDT, setErrorSDT] = useState({
         "code": "", // 1: cho phép submit, 0: chặn submit
         "message": ""
     })
-    const { phone, password } = account
+    const [errorUSER, setErrorUSER] = useState({
+        "code": "", // 1: cho phép submit, 0: chặn submit
+        "message": ""
+    })
 
+    const { phone, username, password } = account
+    const criteria = {
+        hasUppercase: /[A-Z]/.test(password),
+        hasDigit: /\d/.test(password),
+        minLength: password.length >= 8
+    };
     useEffect(() => {
         const getAllAccount = async () => {
             try {
@@ -45,16 +55,22 @@ export default function SignupS() {
 
     const checkPhone = (e) => {
         const phonePattern = /^[0-9]{10}$/
-        if (phonePattern.test(phone)&&!allAccount.find(account=>account.phone===phone)) {
-            setError({ code: 1, message: "" })
+        if (phonePattern.test(phone) && !allAccount.find(account => account.phone === phone)) {
+            setErrorSDT({ code: 1, message: "" })
         } else {
-            setError({ code: 0, message: 'Số điện thoại không hợp lệ' })
+            setErrorSDT({ code: 0, message: 'Số điện thoại không đúng hoặc đã tồn tại' })
         }
     }
-
+    const checkUsername = (e) => {
+        if (!allAccount.find(account => account.username === username)) {
+            setErrorUSER({ code: 1, message: "" })
+        } else {
+            setErrorUSER({ code: 0, message: 'Tên đăng nhập đã tồn tại' })
+        }
+    }
     const signup = async (e) => {
         e.preventDefault()
-        if (error.code) {
+        if (errorSDT.code && errorUSER.code&&criteria.hasUppercase&&criteria.hasDigit&&criteria.minLength) {
             await axios.post("http://localhost:8080/signup", account)
             Swal.fire({
                 position: 'center',
@@ -63,10 +79,10 @@ export default function SignupS() {
                 showConfirmButton: false,
                 html: '<p>Đang chuyển hướng về màn hình chính...</p>',
                 timer: 1500,
-                height:"200px"
+                height: "200px"
             });
             setTimeout(() => {
-                nav('/'); // Redirect to the signin page after 2 seconds
+                nav('/signin'); // Redirect to the signin page after 2 seconds
             }, 2000);
         }
     }
@@ -95,10 +111,29 @@ export default function SignupS() {
 
                             <h3 className="fw-normal mb-3 ps-5 pb-3" style={{ letterSpacing: '1px' }}>Đăng ký bằng số điện thoại</h3>
 
-                            <MDBInput wrapperClass='mb-4 mx-5 w-100' name="phone" value={phone} onChange={onInputChange} onBlur={checkPhone} type='text' size="lg" placeholder="Số điện thoại" />
-                            {error.message && <p style={{ color: 'red', marginLeft: "50px" }}>{error.message}</p>}
-                            <MDBInput wrapperClass='mb-4 mx-5 w-100' name="password" value={password} onChange={onInputChange} type='password' size="lg" placeholder="Mật khẩu" />
-                
+                            <MDBInput wrapperClass='mb-4 mx-5 w-100' name="phone" value={phone} onChange={onInputChange} onBlur={checkPhone} type='text' size="lg" placeholder="Số điện thoại" required/>
+                            {errorSDT.message && <p style={{ color: 'red', marginLeft: "50px" }}>{errorSDT.message}</p>}
+                            <MDBInput wrapperClass='mb-4 mx-5 w-100' name="username" value={username} onChange={onInputChange} onBlur={checkUsername} type='text' size="lg" placeholder="Tên đăng nhập" required/>
+                            {errorUSER.message && <p style={{ color: 'red', marginLeft: "50px" }}>{errorUSER.message}</p>}
+
+                            <MDBInput wrapperClass='mb-4 mx-5 w-100' name="password" value={password} onChange={onInputChange} type='password' size="lg" placeholder="Mật khẩu" required />
+                            <div style={{marginLeft:"40px"}}>
+                                <p>
+                                    <span style={{ color: criteria.hasUppercase ? 'green' : 'red' }}>
+                                        {criteria.hasUppercase ? '✓' : '✗'} Mật khẩu chứa ít nhất 1 chữ viết hoa
+                                    </span>
+                                </p>
+                                <p>
+                                    <span style={{ color: criteria.hasDigit ? 'green' : 'red' }}>
+                                        {criteria.hasDigit ? '✓' : '✗'} Mật khẩu chứa ít nhất 1 số
+                                    </span>
+                                </p>
+                                <p>
+                                    <span style={{ color: criteria.minLength ? 'green' : 'red' }}>
+                                        {criteria.minLength ? '✓' : '✗'} Mật khẩu có ít nhất 8 ký tự
+                                    </span>
+                                </p>
+                            </div>
                             <Button className="mb-4 px-5 mx-5 w-100" style={{ backgroundColor: '#FC5731', color: 'white' }} color='info' size='lg' type="submit">Đăng ký</Button>
                             <p className="small mb-5 pb-lg-3 ms-5"><Link className="text-muted" to="/signupE">Đăng ký với email</Link></p>
                             <p className='ms-5'>Đã có tài khoản? <Link to={"/signin"} className="link-info">Đăng nhập</Link></p>

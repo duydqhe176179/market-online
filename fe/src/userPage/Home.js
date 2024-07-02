@@ -7,6 +7,7 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import { useEffect, useState } from "react";
 import axios from "axios"
 import Footer from "./Footer";
+import BestSeller from "./product/bestSeller";
 
 export default function Home() {
     const settings = {
@@ -18,16 +19,12 @@ export default function Home() {
     };
 
     const [category, setCategory] = useState([])
-    const [bestSeller, setBestSeller] = useState([])
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const categoryApi = await axios.get("http://localhost:8080/category")
                 setCategory(categoryApi.data)
-
-                const bestSellerApi = await axios.get("http://localhost:8080/bestseller")
-                setBestSeller(bestSellerApi.data);
             } catch (error) {
                 console.log(error);
             }
@@ -39,25 +36,26 @@ export default function Home() {
         <div style={{ backgroundColor: "#F5F5F5" }}>
             <Header />
             <br /><br />
-            <Container style={{ backgroundColor: "white" }}>
+            <Container style={{ backgroundColor: "white"}}>
                 <Slider {...settings}>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                        <img src="../images/banner-1.jpg" alt="Slide 1" />
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+                        <img src="../images/banner-1.jpg" alt="Slide 1" style={{ width: "100%", maxHeight: "100%", objectFit: "contain" }} />
                     </div>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                        <img src="../images/banner-2.jpg" alt="Slide 2" />
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+                        <img src="../images/banner-2.jpg" alt="Slide 2" style={{ width: "100%", maxHeight: "100%", objectFit: "contain" }} />
                     </div>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                        <img src="../images/banner-3.png" alt="Slide 3" />
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+                        <img src="../images/banner-3.png" alt="Slide 3" style={{ width: "100%", maxHeight: "100%", objectFit: "contain" }} />
                     </div>
                 </Slider>
             </Container>
+
             <br />
             <Container style={{ backgroundColor: "white" }}>
 
                 <Row>
                     <h5 style={{ color: "#A17575" }}>Danh mục</h5>
-                    {category.map(category => (
+                    {category?.map(category => (
                         <Col key={category.id} xs={1}>
                             <img src={`../images/category/${category.image}`} style={{ height: "100px", width: "100px" }} alt="..." />
                             <div style={{ textAlign: "center" }}>{category.name}</div>
@@ -67,21 +65,7 @@ export default function Home() {
                 <br />
             </Container>
             <br />
-            <Container style={{ backgroundColor: "white" }}>
-                <Row>
-                    <h5 style={{ color: "#A17575" }}>Bán chạy nhất</h5>
-                    {bestSeller.map(product => (
-                        <Col xs={2} key={product.idProduct}>
-                            <img 
-                            src={`../images/product/${product.image}`} 
-                            alt={product.name}
-                            style={{width:"200px",height:"200px"}}
-                            />
-                            <div>{product.name}</div>
-                        </Col>
-                    ))}
-                </Row>
-            </Container>
+            <BestSeller />
             <br />
             <Footer />
         </div>
