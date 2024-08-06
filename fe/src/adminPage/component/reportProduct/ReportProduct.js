@@ -22,7 +22,7 @@ const ReportProduct = () => {
         try {
             const reportProductApi = await axios.get("http://localhost:8080/admin/allReportProduct")
             setReportProduct(reportProductApi.data)
-            console.log(reportProductApi.data)
+            // console.log(reportProductApi.data)
 
         } catch (error) {
             console.log(error);
