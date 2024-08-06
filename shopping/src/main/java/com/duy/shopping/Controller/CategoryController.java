@@ -1,13 +1,12 @@
 package com.duy.shopping.Controller;
 
 import com.duy.shopping.Repository.CategoryRepo;
+import com.duy.shopping.dto.CategoryDto;
 import com.duy.shopping.model.Category;
+import com.duy.shopping.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,6 +16,14 @@ public class CategoryController {
     @Autowired
     private CategoryRepo repo;
 
+    @Autowired
+    private CategoryService categoryService;
+
     @GetMapping("/category")
     List<Category> getAllCates() {return repo.findAll();}
+
+    @PostMapping("/category/add")
+    ResponseEntity<?> addCategory(@RequestBody CategoryDto categoryDto) {
+        return categoryService.addCategory(categoryDto);
+    }
 }

@@ -4,8 +4,8 @@ import com.duy.shopping.Repository.ProductRepository;
 import com.duy.shopping.Repository.RateRepository;
 import com.duy.shopping.model.Product;
 import com.duy.shopping.model.RateProduct;
+import com.duy.shopping.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +18,9 @@ public class ProductController {
 
     @Autowired
     private RateRepository rateRepo;
+
+    @Autowired
+    private ProductService productService;
 
     @GetMapping("/bestseller")
     public List<Product> getBestSeller() {
@@ -40,5 +43,10 @@ public class ProductController {
     @GetMapping("/product/shop/{id}")
     public List<Product> getAllProduct(@PathVariable long id) {
         return productRepository.findByIdShop(id);
+    }
+
+    @GetMapping("/products")
+    public List<Product> getAllProduct() {
+        return productService.getAllProduct();
     }
 }

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -18,7 +20,10 @@ public class Product {
     private User shop;   // id người bán
 
     private String name;
-    private String image;
+
+    @ElementCollection
+    private List<String> image;
+
     private String material;
     private double price;
     private int sale;    // sale bao nhieu %
@@ -32,4 +37,7 @@ public class Product {
     @Lob
     @Size(max = 10000)
     private String description;
+
+    private String status;
+    private String reasonReject;
 }

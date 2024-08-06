@@ -27,7 +27,7 @@ const ShopDetail = () => {
             <Header />
             <ShopInfo idShop={id}/>
             <br/>
-            <AllProduct allProduct={allProduct}/>
+            <AllProduct allProduct={allProduct} status={"ok"}/>
             <Footer/>
         </div>
     )

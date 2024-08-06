@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    public Optional<Product> findByIdProduct(long idProduct);
+     Optional<Product> findByIdProduct(long idProduct);
 
     @Query("SELECT p FROM Product p WHERE p.shop.id = :id")
     public List<Product> findByIdShop(@Param("id") long idShop);
