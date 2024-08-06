@@ -26,6 +26,10 @@ public class RateProduct {
     @JoinColumn(name = "user_id")
     private User userRate;
 
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_item_id")
+    private OrderItem orderItem;
+
     private int star;
 
     @Lob

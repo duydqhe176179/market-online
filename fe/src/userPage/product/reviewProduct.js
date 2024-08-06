@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Col, Container, Row, Button } from "react-bootstrap";
 import { FaStar } from "react-icons/fa";
-import moment from 'moment';
 import { GiPenguin } from "react-icons/gi";
+import formatDate from "../../function/formatDate"
 
 const ReviewProduct = ({ rateProduct }) => {
     const [averageStar, setAverageStar] = useState();
@@ -14,9 +14,7 @@ const ReviewProduct = ({ rateProduct }) => {
         setAverageStar((totalStar / rateProduct.length).toFixed(1));
     }, [rateProduct]);
 
-    const formatDate = (isoString) => {
-        return moment(isoString).format('YYYY-MM-DD HH:mm');
-    };
+    
 
     // Calculate the reviews to display on the current page
     const indexOfLastReview = currentPage * reviewsPerPage;
