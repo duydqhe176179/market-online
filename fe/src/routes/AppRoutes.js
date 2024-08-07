@@ -20,6 +20,8 @@ import ProductAdmin from "../adminPage/component/ProductAdmin";
 import OrderAdmin from "../adminPage/component/OrderAdmin";
 import ReportAdmin from "../adminPage/component/ReportAdmin";
 import Overview from "../adminPage/component/Overview";
+import CSKH from "../CSKH";
+import NotificationAdmin from "../adminPage/component/NotificationAdmin";
 const AppRoutes = () => {
     return (
         <Routes>
@@ -28,6 +30,7 @@ const AppRoutes = () => {
             <Route path='/signupS' element={<SignupS />} />
             <Route path='/signupE' element={<SignupE />} />
             <Route path="/verifyEmail" element={<VerifyEmail />} />
+            <Route path="/cskh" element={<CSKH />} />
 
             <Route path="/product/:id" element={<DetailProduct />} />
 
@@ -42,6 +45,8 @@ const AppRoutes = () => {
             <Route path="/user/phone" element={<User view={"phone"} />} />
             <Route path="/user/password" element={<User view={"password"} />} />
             <Route path="/user/purchaseOrder" element={<User view={"purchaseOrder"} />} />
+            <Route path="/user/notification" element={<User view={"notification"} />} />
+
             <Route path="/allProduct" element={<ViewAllProduct />} />
 
 
@@ -54,6 +59,7 @@ const AppRoutes = () => {
             <Route path="/admin/products" element={<ProductAdmin />} />
             <Route path="/admin/orders" element={<OrderAdmin />} />
             <Route path="/admin/reports" element={<ReportAdmin />} />
+            <Route path="/admin/notification" element={<NotificationAdmin />} />
 
         </Routes>
     )

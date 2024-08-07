@@ -3,14 +3,12 @@ import { useEffect, useState } from "react"
 import { Col, Container, Row } from "react-bootstrap"
 import { useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
-import { viewProductDetail } from "../../redux/Slice/product"
 import formatMoney from "../../function/formatMoney"
 import truncateString from "../../function/formatNameProduct"
 
 const OtherProduct = ({ shop, idProduct }) => {
     const [allProduct, setAllProduct] = useState([])
     const navigate = useNavigate()
-    const dispatch = useDispatch()
 
     useEffect(() => {
         const fetchData = async () => {
