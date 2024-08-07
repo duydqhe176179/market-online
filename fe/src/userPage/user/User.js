@@ -12,6 +12,8 @@ import ChangePhone from "./ChangePhone";
 import { IoIosPhonePortrait } from "react-icons/io";
 import { RiLockPasswordLine } from "react-icons/ri";
 import ChangePassword from "./ChangePassword";
+import { IoNotificationsOutline } from "react-icons/io5";
+import Notification from "./Notification";
 
 const User = ({ view }) => {
     const [user, setUser] = useState(null);
@@ -31,6 +33,10 @@ const User = ({ view }) => {
             setSection("purchaseOrder");
         } else if (location.pathname.includes("phone")) {
             setSection("phone")
+        } else if (location.pathname.includes("password")) {
+            setSection("password")
+        } else if (location.pathname.includes("notification")) {
+            setSection("notification")
         }
     }, [location.pathname]);
 
@@ -59,6 +65,8 @@ const User = ({ view }) => {
                 return <ChangePhone />
             case "password":
                 return <ChangePassword />
+            case "notification":
+                return <Notification/>
             default:
                 return <Profile />;
         }
@@ -120,6 +128,15 @@ const User = ({ view }) => {
                                             setSection("purchaseOrder")
                                             navigate("/user/purchaseOrder")
                                         }} style={navLeftStyle}>Đơn mua</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><IoNotificationsOutline style={{ marginRight: "3px" }} /></td>
+                                    <td>
+                                        <button onClick={() => {
+                                            setSection("notification")
+                                            navigate("/user/notification")
+                                        }} style={navLeftStyle}>Thông báo</button>
                                     </td>
                                 </tr>
                             </tbody>

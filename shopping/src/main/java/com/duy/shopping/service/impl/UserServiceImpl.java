@@ -1,11 +1,9 @@
 package com.duy.shopping.service.impl;
 
-import com.duy.shopping.Repository.ProductRepository;
-import com.duy.shopping.Repository.ReportAccountRepository;
-import com.duy.shopping.Repository.ReportProductRepository;
-import com.duy.shopping.Repository.UserRepository;
+import com.duy.shopping.Repository.*;
 import com.duy.shopping.dto.ReportAccountDto;
 import com.duy.shopping.dto.ReportProductDto;
+import com.duy.shopping.model.Notification;
 import com.duy.shopping.model.ReportAccount;
 import com.duy.shopping.model.ReportProduct;
 import com.duy.shopping.model.User;
@@ -17,8 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-import static com.duy.shopping.Constant.Constant.NEW_PASSWORD;
-import static com.duy.shopping.Constant.Constant.PENDING_REPORT;
+import static com.duy.shopping.Constant.Constant.*;
+import static com.duy.shopping.Constant.Constant.UNREAD;
+
+import com.duy.shopping.Constant.CreateNotification;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -36,6 +36,12 @@ public class UserServiceImpl implements UserService {
     private ProductRepository productRepository;
     @Autowired
     private ReportProductRepository reportProductRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private CreateNotification createNotification;
 
     @Override
     public ResponseEntity<?> updateUser(User newUser) {
@@ -112,15 +118,18 @@ public class UserServiceImpl implements UserService {
         reportAccount.setContent(reportAccountDto.getContent());
         reportAccount.setDateSend(new Date());
         reportAccount.setStatus(PENDING_REPORT);
-
         reportAccountRepository.save(reportAccount);
+
+        createNotification.createNotification(10L, accuser.getAvatar(), "Tố cáo tài khoản", NOTI_ADMIN_NEW_REPORT_ACCOUNT, "/admin/reports");
+
         return ResponseEntity.ok().build();
     }
 
     @Override
     public ResponseEntity<?> reportProduct(ReportProductDto reportProductDto) {
         ReportProduct reportProduct = new ReportProduct();
-        reportProduct.setAccuser(userRepository.findById(reportProductDto.getIdAccuser()));
+        User accuser = userRepository.findById(reportProductDto.getIdAccuser());
+        reportProduct.setAccuser(accuser);
         reportProduct.setProduct(productRepository.findByIdProduct(reportProductDto.getIdProduct()).get());
         reportProduct.setTitle(reportProductDto.getTitle());
         reportProduct.setContent(reportProductDto.getContent());
@@ -128,8 +137,9 @@ public class UserServiceImpl implements UserService {
         reportProduct.setStatus(PENDING_REPORT);
 
         reportProductRepository.save(reportProduct);
+        createNotification.createNotification(10L,accuser.getAvatar(),"Tố cáo sản phẩm",NOTI_ADMIN_NEW_REPORT_PRODUCT, "/admin/reports");
         return ResponseEntity.ok().build();
     }
 
-    
+
 }
