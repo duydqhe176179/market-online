@@ -7,7 +7,6 @@ import com.duy.shopping.dto.ReportProductDto;
 import com.duy.shopping.model.User;
 import com.duy.shopping.service.AuthService;
 import com.duy.shopping.service.MailService;
-import com.duy.shopping.service.NotificationService;
 import com.duy.shopping.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,9 +33,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private NotificationService notificationService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody User newUser) {
@@ -93,10 +89,5 @@ public class UserController {
     @PostMapping("/reportProduct")
     public ResponseEntity<?> reportProduct(@RequestBody ReportProductDto reportProductDto) {
         return userService.reportProduct(reportProductDto);
-    }
-
-    @PostMapping("/user/notification")
-    public ResponseEntity<?> getAllNotifications(@RequestParam long idUser) {
-        return notificationService.getNotificationsByUserId(idUser);
     }
 }

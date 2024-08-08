@@ -88,7 +88,7 @@ const ReportAdmin = () => {
                             <Table style={{ width: "100%" }} striped bordered hover>
                                 <tbody>
                                     <tr>
-                                        <td style={{width:"200px"}}>Tài khoản bị báo cáo</td>
+                                        <td>Tài khoản bị báo cáo</td>
                                         <td>Tiêu đề</td>
                                         <td>Nội dung</td>
                                         <td>Ngày gửi</td>
@@ -150,7 +150,7 @@ const ReportAdmin = () => {
                             <Table style={{ width: "100%" }} striped bordered hover>
                                 <tbody>
                                     <tr>
-                                        <td style={{width:"200px"}}>Tài khoản bị báo cáo</td>
+                                        <td>Tài khoản bị báo cáo</td>
                                         <td>Tiêu đề</td>
                                         <td>Nội dung</td>
                                         <td>Ngày gửi</td>
