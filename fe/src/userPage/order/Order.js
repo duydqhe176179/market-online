@@ -69,7 +69,7 @@ const Order = () => {
                     height: "200px"
                 });
                 setTimeout(() => {
-                    navigate('/user/purchaseOrder'); // Redirect to the signin page after 2 seconds
+                    navigate('/purchaseOrder'); // Redirect to the signin page after 2 seconds
                 }, 2000);
             }
         } catch (error) {

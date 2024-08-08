@@ -84,7 +84,7 @@ const ShopInfo = ({ idShop }) => {
                 <Col xs={4} style={{ borderRight: "solid 1px #FAE3E1" }}>
                     <Row>
                         <Col xs={4} style={{ borderRadius: "50%", overflow: "hidden", width: "100px", height: "100px", padding: "0" }}>
-                            <img src={`${shop?.avatar}`} alt="avatar" width={"100%"}
+                            <img src={`../images/avatar/${shop?.avatar}`} alt="avatar" width={"100%"}
                                 style={{
                                     objectFit: "cover",
                                     height: "100%"

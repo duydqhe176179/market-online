@@ -12,7 +12,6 @@ import { useNavigate } from "react-router-dom";
 import LineChart from "./chart/LineChart";
 import Footer from "../Footer";
 import BarChart from "./chart/BarChart";
-import { COMPLETED } from "../../constant/constant";
 
 const Overview = () => {
     const [product, setProduct] = useState()
@@ -105,7 +104,7 @@ const Overview = () => {
                                 <LineChart orders={order}  />
                             </div>
                             <div style={{ width: "49%", borderRadius: "10px", border: "1px solid #F4F4F6",backgroundColor:"#F4F4F6",padding:"20px" }}>
-                                <BarChart orders={order?.filter(order=>order.status===COMPLETED)}  />
+                                <BarChart orders={order}  />
                             </div>
                         </Container>
                     </Col>

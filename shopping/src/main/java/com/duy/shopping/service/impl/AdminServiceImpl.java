@@ -1,6 +1,5 @@
 package com.duy.shopping.service.impl;
 
-import com.duy.shopping.Constant.CreateNotification;
 import com.duy.shopping.Repository.ProductRepository;
 import com.duy.shopping.Repository.ReportAccountRepository;
 import com.duy.shopping.Repository.ReportProductRepository;
@@ -16,7 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.duy.shopping.Constant.Constant.*;
+import static com.duy.shopping.Constant.Constant.ACCEPT_REPORT;
+import static com.duy.shopping.Constant.Constant.REJECT_REPORT;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -31,8 +31,6 @@ public class AdminServiceImpl implements AdminService {
     private UserRepository userRepository;
     @Autowired
     private AutoUnlockAccount autoUnlockAccount;
-    @Autowired
-    private CreateNotification createNotification;
 
     @Override
     public ResponseEntity<?> agreeProduct(long idProduct) {
@@ -58,7 +56,6 @@ public class AdminServiceImpl implements AdminService {
         reportAccount.setReasonReject(reasonReject);
 
         reportAccountRepository.save(reportAccount);
-        createNotification.createNotification(reportAccount.getAccuser().getId(), reportAccount.getAccused().getAvatar(), NOTI_HANDLE_REPORT, reasonReject + NOTI_REJECT_REPORT, null);
         return ResponseEntity.ok().build();
     }
 
