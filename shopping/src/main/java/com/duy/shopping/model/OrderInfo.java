@@ -23,9 +23,11 @@ public class OrderInfo {
     @JoinColumn(name = "shop_id")
     private User shop;
 
-    private Long totalOrder;
+    private int totalOrder;
     private String status;
     private Date createDate;
     private String payMethod;
     private String code;
+    private String address;
+    private String phone;
 }

@@ -3,11 +3,12 @@ import Header from "../Header";
 import { Col, Container, Row } from "react-bootstrap";
 import Footer from "../Footer";
 import { FaLocationDot } from "react-icons/fa6";
-import formatNameProduct from "../../function/formatNameProduct";
 import formatMoney from "../../function/formatMoney";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { message } from "antd";
+import { BASE_URL } from "../../constant/constant";
 
 const Order = () => {
     const [orderItem, setOrderItem] = useState(null);
@@ -17,12 +18,20 @@ const Order = () => {
     const [totalOrder, setTotalOrder] = useState(0)
     const [payMethod, setPayMethod] = useState("cod")
     const navigate = useNavigate()
+    const token = JSON.parse(localStorage.getItem("user"))?.token
+
+    useEffect(() => {
+        if (!token) {
+            // Chuyển hướng đến trang đăng nhập nếu không có token
+            navigate('/signin');
+        }
+    }, [token, navigate])
 
     useEffect(() => {
         const orderItemLocal = JSON.parse(localStorage.getItem("order"));
         const userLocal = JSON.parse(localStorage.getItem("user"));
         const shopOrderLocal = JSON.parse(localStorage.getItem("shopOrder"));
-        setTotalOrder(orderItemLocal.reduce((total, item) => total + item.product.price * (100 - item.product.sale) / 100 * item.quantity, 0))
+        setTotalOrder(orderItemLocal?.reduce((total, item) => total + item.product.price * (100 - item.product.sale) / 100 * item.quantity, 0))
 
 
         setOrderItem(orderItemLocal);
@@ -37,13 +46,16 @@ const Order = () => {
     };
 
     if (loading) {
-        return <div>Loading...</div>; // Bạn có thể thay thế bằng một spinner hoặc component loading khác
+        return <div>Loading...</div>;
     }
     const handleOrder = async () => {
+        if (!user.address || !user.phone) {
+            message.error("Chưa có địa chỉ hoặc số điện thoại")
+            return
+        }
         const info = orderItem.map(order => {
-            return {shopId:order.product.shop.id ,productId: order.product.idProduct, quantity: order.quantity, price:order.quantity*(order.product.price*(100-order.product.sale)/100) }
+            return { shopId: order.product.shop.id, productId: order.product.idProduct, quantity: order.quantity, price: order.quantity * (order.product.price * (100 - order.product.sale) / 100) }
         })
-        console.log(info);  
         const bill = {
             userId: user.id,
             orderItems: info,
@@ -53,32 +65,86 @@ const Order = () => {
             return order.id
         })
         try {
-            const response = await axios.post("http://localhost:8080/order", bill)
+            const response = await axios.post(`${BASE_URL}/order`, bill,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
             console.log(response);
-            if (response.data === "order success") {
-                idCartList.forEach(idCart => {
-                    axios.post(`http://localhost:8080/cart/delete?idCart=${idCart}`)
-                });
-                Swal.fire({
-                    position: 'center',
-                    icon: 'success',
-                    title: 'Đặt hàng thành công',
-                    showConfirmButton: false,
-                    html: '<p>Đang chuyển hướng đến trang đơn mua...</p>',
-                    timer: 1500,
-                    height: "200px"
-                });
-                setTimeout(() => {
-                    navigate('/purchaseOrder'); // Redirect to the signin page after 2 seconds
-                }, 2000);
+            if (response.status === 200) {
+                console.log("200");
+                
+                if (idCartList.length) {
+                    for (const idCart of idCartList) {
+                        try {
+                            await axios.post(`${BASE_URL}/cart/delete?idCart=${idCart}`,
+                                {},
+                                {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    }
+                                })
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    }
+                }
+                if (payMethod === "online") {
+                    // lấy mảng id của các đơn order vừa đặt
+                    const arrayIdOrder = response.data.map(order => {
+                        return order?.id
+                    })
+                    //
+                    banking(arrayIdOrder)
+
+                } else {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'success',
+                        title: 'Đặt hàng thành công',
+                        showConfirmButton: false,
+                        html: '<p>Đang chuyển hướng đến trang đơn mua...</p>',
+                        timer: 1500,
+                    });
+                    setTimeout(() => {
+                        navigate('/user/purchaseOrder'); // Redirect to the signin page after 2 seconds
+                    }, 2000);
+                }
             }
         } catch (error) {
             console.log(error);
+            if (error.response) {
+                message.error(error.response.data);
+            } else {
+                message.error("Có lỗi xảy ra!");
+            }
         }
     }
     const handlePayMethodChange = (event) => {
         setPayMethod(event.target.value);
     };
+
+    const banking = async (listIdOrder) => {
+        try {
+            const response = await axios.post(`${BASE_URL}/api/payment/create_payment`, listIdOrder)
+            console.log(response);
+            Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: 'Đặt hàng thành công',
+                showConfirmButton: false,
+                html: '<p>Đang chuyển hướng đến trang thanh toán...</p>',
+                timer: 1500,
+            });
+            setTimeout(() => {
+                window.location.assign(response.data.url); // đến trang thanh toán
+            }, 2000);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    const isButtonDisabled = payMethod === "wallet" && user?.wallet < totalOrder
     return (
         <div style={{ background: "#F5F5F5" }}>
             <Header />
@@ -97,7 +163,7 @@ const Order = () => {
                             {user.name}&nbsp;&nbsp;&nbsp;{user.phone}
                         </div>
                         <div>{user.address}</div>
-                        <button style={{ background: "none", border: "none", color: "#008AD3", marginLeft: "20px" }}>Thay đổi</button>
+                        <button onClick={() => navigate('/user/profile')} style={{ background: "none", border: "none", color: "#008AD3", marginLeft: "20px" }}>Thay đổi</button>
                     </div>
                     <div>Phí vận chuyển: 20.000đ - 50.000đ</div>
                 </div>
@@ -129,10 +195,11 @@ const Order = () => {
                                             alt="Product"
                                         />
                                     </Col>
-                                    <Col xs={7}>
-                                        {formatNameProduct(item?.product.name)}
+                                    <Col xs={10}>
+                                        <div style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis", lineHeight: "1.5", maxHeight: "3em" }}>
+                                            {(item?.product.name)}
+                                        </div>
                                     </Col>
-                                    <Col xs={3}>sdff</Col>
                                 </Col>
                                 <Col xs={6} className="row">
                                     <Col xs={4} style={{ textAlign: "center" }}>{formatMoney(item.product.price * (100 - item.product.sale) / 100)} đ</Col>
@@ -149,8 +216,12 @@ const Order = () => {
                         Phương thức thanh toán
                     </h5>
                     <div style={{ marginRight: "40px", marginLeft: "40px" }}>
+                        <input id="wallet" type="radio" name="payMethod" value={"wallet"} checked={payMethod === "wallet"} onChange={handlePayMethodChange} />
+                        <label htmlFor="wallet">Số dư ví</label>
+                    </div>
+                    <div style={{ marginRight: "40px", marginLeft: "40px" }}>
                         <input id="online" type="radio" name="payMethod" value={"online"} checked={payMethod === "online"} onChange={handlePayMethodChange} />
-                        <label htmlFor="online">Internet Banking</label>
+                        <label htmlFor="online">Ví VNPay</label>
                     </div>
                     <div>
                         <input id="cod" type="radio" name="payMethod" value={"cod"} checked={payMethod === "cod"} onChange={handlePayMethodChange} />
@@ -166,6 +237,7 @@ const Order = () => {
                 <div style={{ marginLeft: "auto", display: "block", textAlign: "right", marginTop: "10px" }}>
                     <button style={{ padding: "10px 30px", border: "none", background: "#FC5731", color: "white" }}
                         onClick={handleOrder}
+                        disabled={isButtonDisabled}
                     >Đặt hàng</button>
                 </div>
             </Container>

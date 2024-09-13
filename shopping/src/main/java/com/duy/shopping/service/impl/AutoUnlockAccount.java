@@ -1,6 +1,6 @@
 package com.duy.shopping.service.impl;
 
-import com.duy.shopping.Repository.UserRepository;
+import com.duy.shopping.repository.UserRepository;
 import com.duy.shopping.model.User;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +22,13 @@ public class AutoUnlockAccount {
             User accused = userRepository.findById(userId);
             accused.setStatus(1);
             userRepository.save(accused);
-        }, timeLockAccount, TimeUnit.MINUTES);
+        }, timeLockAccount, TimeUnit.DAYS);
+    }
+    public void scheduleLock(long userId) {
+        scheduler.schedule(() -> {
+            User accused = userRepository.findById(userId);
+            accused.setStatus(0);
+            userRepository.save(accused);
+        }, 2, TimeUnit.HOURS);
     }
 }

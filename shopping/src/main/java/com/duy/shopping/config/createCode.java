@@ -4,7 +4,7 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 
-public class createCode {
+public class CreateCode {
     private static final String CHARACTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final Random RANDOM = new SecureRandom();
 

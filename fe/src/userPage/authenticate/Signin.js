@@ -14,7 +14,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button, Container, Form } from "react-bootstrap";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import {signin} from "../../redux/Slice/auth"
+import { signin } from "../../redux/Slice/auth"
+import { BASE_URL } from "../../constant/constant";
 
 export default function Signin() {
     const nav = useNavigate()
@@ -37,11 +38,10 @@ export default function Signin() {
     const login = async (e) => {
         setLoading(true)
         e.preventDefault();
-        console.log(account);
         const hash = btoa(`${account.username}:${account.password}`);
 
         try {
-            const response = await axios.post("http://localhost:8080/signin", {},
+            const response = await axios.post(`${BASE_URL}/signin`, {},
                 {
                     headers: {
                         Authorization: `Basic ${hash}`,
@@ -52,13 +52,11 @@ export default function Signin() {
                 setError({ code: 1, message: "Tên đăng nhập hoặc mật khẩu không đúng" })
             } else if (response.data === "Xảy ra lỗi khi đăng nhập") {
                 setError({ code: 1, message: "Xảy ra lỗi khi đăng nhập" })
+            } else if (response.data === "Không thể đăng nhập, tài khoản đã bị khóa") {
+                setError({ code: 1, message: "Không thể đăng nhập, tài khoản đã bị khóa" })
             } else {
-                // localStorage.setItem("token", response.data.token);
-                // localStorage.setItem("role", response.data.role);
-                // localStorage.setItem("userId", response.data.id);
                 dispatch(signin(response.data))
                 nav("/")
-                // Redirect to a protected route
             }
         } catch (error) {
             console.log(error);
@@ -71,7 +69,7 @@ export default function Signin() {
             <div style={{ backgroundColor: "#FBFBFB", padding: "15px" }}>
                 <Container>
                     <div style={{ display: "flex" }}>
-                        <Link to="/"><img src="../images/logo.png" alt="Logo" style={{ height: "70px" }} /></Link>
+                        <Link to="/"><img src="../images/logo2.png" alt="Logo" style={{ height: "70px" }} /></Link>
                         <h4 className="fw-normal mb-3 ps-5 " style={{ marginTop: "20px" }}>Trang đăng nhập</h4>
 
                     </div>
@@ -96,7 +94,7 @@ export default function Signin() {
                             {error.message && <p style={{ color: 'red', marginLeft: "50px" }}>{error.message}</p>}
 
                             <Button className="mb-4 px-5 mx-5 w-100" style={{ backgroundColor: '#FC5731', color: 'white' }} color='info' size='lg' type="submit"> {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}</Button>
-                            <p className="small mb-5 pb-lg-3 ms-5"><a className="text-muted" href="#!">Quên mật khẩu</a></p>
+                            <p className="small mb-5 pb-lg-3 ms-5"><a className="text-muted" href="forgetPassword">Quên mật khẩu</a></p>
                             <p className='ms-5'>Không có tài khoản? <Link to={"/signupS"} className="link-info">Đăng ký</Link></p>
 
                         </Form>

@@ -1,7 +1,6 @@
 package com.duy.shopping.service.impl;
 
-import com.duy.shopping.Constant.Constant;
-import com.duy.shopping.Repository.UserRepository;
+import com.duy.shopping.repository.UserRepository;
 import com.duy.shopping.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;

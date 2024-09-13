@@ -1,20 +1,27 @@
-package com.duy.shopping.Controller;
+package com.duy.shopping.controller;
 
-import com.duy.shopping.Repository.OrderInfoRepo;
-import com.duy.shopping.Repository.OrderItemRepo;
+import com.duy.shopping.repository.OrderInfoRepo;
+import com.duy.shopping.repository.OrderItemRepo;
 import com.duy.shopping.model.OrderInfo;
 import com.duy.shopping.model.OrderItem;
-import com.duy.shopping.model.ReportAccount;
 import com.duy.shopping.service.AdminService;
 import com.duy.shopping.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.duy.shopping.constant.Constant.URL_ORIGIN;
+
 @RestController
-@CrossOrigin("http://localhost:3000/")
+@CrossOrigin(URL_ORIGIN)
+@RequestMapping("/admin")
 public class AdminController {
 
     @Autowired
@@ -23,65 +30,62 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
-    @Autowired
-    private OrderInfoRepo orderInfoRepo;
-
-    @Autowired
-    private OrderItemRepo orderItemRepo;
-
-    @PostMapping("/admin/changeStatusAccount")
+    @PostMapping("/changeStatusAccount")
     ResponseEntity<?> changeStatusAccount(@RequestParam long idUser) {
         return userService.changeStatusAccount(idUser);
     }
 
-    @PostMapping("/admin/resetPassword")
+    @PostMapping("/resetPassword")
     ResponseEntity<?> resetPassword(@RequestParam long idUser) {
         return userService.resetPassword(idUser);
     }
 
-    @PostMapping("/admin/agreeProduct")
+    @PostMapping("/agreeProduct")
     ResponseEntity<?> agreeProduct(@RequestParam long idProduct) {
         return adminService.agreeProduct(idProduct);
     }
 
-    @PostMapping("/admin/rejectProduct")
+    @PostMapping("/rejectProduct")
     ResponseEntity<?> rejectProduct(@RequestParam long idProduct, @RequestParam String reasonReject) {
         return adminService.rejectProduct(idProduct, reasonReject);
     }
 
-    @GetMapping("/admin/allOrder")
+    @GetMapping("/allOrder")
     ResponseEntity<?> getAllOrder() {
-        List<OrderInfo> list = orderInfoRepo.findAll();
-        return ResponseEntity.ok(list);
+        return adminService.getAllOrder();
     }
 
-    @GetMapping("/admin/allOrderItem")
+    @GetMapping("/allOrderItem")
     ResponseEntity<?> getAllOrderItem() {
-        List<OrderItem> list = orderItemRepo.findAll();
-        return ResponseEntity.ok(list);
+        return adminService.getAllOrderItem();
     }
 
-    @GetMapping("/admin/allReportAccount")
+    @GetMapping("/allReportAccount")
     ResponseEntity<?> getAllReportAccount() {
         return adminService.getAllReportAccount();
     }
 
-    @PostMapping("/admin/acceptReportAccount")
+    @PostMapping("/acceptReportAccount")
     ResponseEntity<?> acceptReportAccount(@RequestParam long idReportAccount, @RequestParam long idUser, @RequestParam int timeLockAccount) {
         return adminService.acceptReportAccount(idReportAccount, idUser, timeLockAccount);
     }
 
-    @PostMapping("/admin/rejectReportAccount")
+    @PostMapping("/rejectReportAccount")
     ResponseEntity<?> rejectReport(@RequestParam long idReport, @RequestParam String reasonReject) {
         return adminService.rejectReportAccount(idReport, reasonReject);
     }
 
-    @GetMapping("/admin/allReportProduct")
+    @GetMapping("/allReportProduct")
     ResponseEntity<?> getAllReportProduct() {
         return adminService.getAllReportProduct();
     }
 
-    @PostMapping("/admin/rejectReportProduct")
+    @PostMapping("/acceptReportProduct")
+    ResponseEntity<?> acceptReportProduct(@RequestParam long idReportProduct) {
+        return adminService.acceptReportProduct(idReportProduct);
+    }
+
+    @PostMapping("/rejectReportProduct")
     ResponseEntity<?> rejectReportProduct(@RequestParam long idReport, @RequestParam String reasonReject) {
         return adminService.rejectReportProduct(idReport, reasonReject);
     }

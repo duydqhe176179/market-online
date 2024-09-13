@@ -1,4 +1,4 @@
-package com.duy.shopping.Repository;
+package com.duy.shopping.repository;
 
 import com.duy.shopping.model.RateProduct;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +10,7 @@ import java.util.List;
 public interface RateRepository extends JpaRepository<RateProduct, Long> {
     @Query("SELECT r FROM RateProduct r WHERE r.product.idProduct = :id")
     List<RateProduct> findRateProductByIdProduct(@Param("id") long id);
+
+    @Query("SELECT r FROM RateProduct r WHERE r.orderItem.id = :idOrderItem")
+    RateProduct findByIdOrderItem(long idOrderItem);
 }

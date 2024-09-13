@@ -37,9 +37,7 @@ public class RateProduct {
     private String review;
     private Date dateReview;
 
-    @Lob
-    @Size(max = 10000)
-    private String response;
+
 
 
 }

@@ -17,6 +17,9 @@ export const authSlice = createSlice({
             // state.user = null
             localStorage.removeItem('user');
             localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('item');
+            localStorage.removeItem('order');
+            localStorage.removeItem('shopOrder');
         },
         loadUserFromLocalStorage: (state) => {
             const user = JSON.parse(localStorage.getItem('user'));

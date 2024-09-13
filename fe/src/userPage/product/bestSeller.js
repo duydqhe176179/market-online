@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom"
 import { useDispatch } from "react-redux"
 import { viewProductDetail } from "../../redux/Slice/product"
 import formatMoney from "../../function/formatMoney"
-import truncateString from "../../function/formatNameProduct"
+import { FaStar } from "react-icons/fa"
+import { BASE_URL } from "../../constant/constant"
 
 const BestSeller = () => {
     const [bestSeller, setBestSeller] = useState([])
@@ -14,8 +15,12 @@ const BestSeller = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const bestSellerApi = await axios.get("http://localhost:8080/bestseller")
-                setBestSeller(bestSellerApi.data);
+                const bestSellerApi = await axios.get(`${BASE_URL}/bestseller`)
+                const updatedBestSeller = await Promise.all(bestSellerApi.data.map(async (product) => {
+                    const star = await getStar(product.idProduct);
+                    return { ...product, star: star };
+                }))
+                setBestSeller(updatedBestSeller);
             } catch (error) {
                 console.log(error);
             }
@@ -29,7 +34,19 @@ const BestSeller = () => {
         navigate(`/product/${product.idProduct}`)
     }
 
-
+    const getStar = async (idProduct) => {
+        try {
+            const response = await axios.get(`${BASE_URL}/product/rate/${idProduct}`)
+            if (response.data.length === 0) {
+                return 0
+            } else {
+                const totalStar = response.data.reduce((total, rate) => total + rate.star, 0)
+                return totalStar / (response.data.length) ? totalStar / (response.data.length) : 0
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
     return (
         <Container style={{ backgroundColor: "white" }}>
             <Row>
@@ -43,7 +60,7 @@ const BestSeller = () => {
                         />
                         <div>
                             <div style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis", lineHeight: "1.5", maxHeight: "3em" }}>
-                                {truncateString(product?.name)}
+                                {(product?.name)}
                             </div>
                             <div>
                                 {product?.sale === 0 ? (
@@ -66,7 +83,21 @@ const BestSeller = () => {
                                         </div>
                                     </div>
                                 )}
-                                <div>Đã bán {product?.numberOfSale}</div>
+                                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "7px" }}>
+                                    <div style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: 'center'
+                                    }}>
+                                        {[...Array(5)].map((_, i) => (
+                                            <FaStar
+                                                key={i}
+                                                style={{ color: i < product.star ? "#F0D24A" : "#e4e5e9" }}
+                                            />
+                                        ))}
+                                    </div>
+                                    <div>Đã bán {product.numberOfSale}</div>
+                                </div>
                             </div>
                         </div>
                     </Col>

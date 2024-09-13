@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { MdOutlineReport } from "react-icons/md";
 import { message, Modal, Select, Tooltip } from "antd";
 import TextArea from "antd/es/input/TextArea";
+import { BASE_URL } from "../../constant/constant";
 
 const ShopInfo = ({ idShop }) => {
     const [shop, setShop] = useState();
@@ -25,7 +26,7 @@ const ShopInfo = ({ idShop }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const shopApi = await axios.get(`http://localhost:8080/shop/${idShop}`);
+                const shopApi = await axios.get(`${BASE_URL}/shop/${idShop}`);
                 setShop(shopApi.data.shop);
                 setAllRate(shopApi.data.allRate);
                 setAllProduct(shopApi.data.products.filter(product => product.status === "ok"));
@@ -60,7 +61,7 @@ const ShopInfo = ({ idShop }) => {
             return
         }
         try {
-            const response = await axios.post("http://localhost:8080/reportAccount", reportAccountDto)
+            const response = await axios.post(`${BASE_URL}/reportAccount`, reportAccountDto)
             if (response.status === 200) {
                 setContent('')
                 message.success("Gửi thành công")
@@ -84,7 +85,7 @@ const ShopInfo = ({ idShop }) => {
                 <Col xs={4} style={{ borderRight: "solid 1px #FAE3E1" }}>
                     <Row>
                         <Col xs={4} style={{ borderRadius: "50%", overflow: "hidden", width: "100px", height: "100px", padding: "0" }}>
-                            <img src={`../images/avatar/${shop?.avatar}`} alt="avatar" width={"100%"}
+                            <img src={`${shop?.avatar}`} alt="avatar" width={"100%"}
                                 style={{
                                     objectFit: "cover",
                                     height: "100%"

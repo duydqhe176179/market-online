@@ -33,8 +33,8 @@ public class SecurityConfig {
         http.csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests(
                         (authorizeHttpRequests) -> authorizeHttpRequests
-//                                .requestMatchers("/admin/**").hasAnyRole("ADMIN")
-//                                .requestMatchers("/*","/signin")
+                                .requestMatchers("/admin/**","/category/add").hasAuthority("ADMIN")
+                                .requestMatchers("/cart/**","/order/**","/orderItems").hasAnyAuthority("USER","ADMIN")
 //                                .permitAll()
                                 .anyRequest().permitAll());
 //                                .authenticated());

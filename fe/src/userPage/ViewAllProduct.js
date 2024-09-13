@@ -1,4 +1,4 @@
-import { Button, Col, Container, Row } from "react-bootstrap";
+import {  Col, Container, Row } from "react-bootstrap";
 import Header from "./Header";
 import { IoMenu } from "react-icons/io5";
 import { HiOutlineFilter } from "react-icons/hi";
@@ -8,10 +8,10 @@ import { FaStar } from "react-icons/fa";
 import { FaRegStar } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import truncateString from "../function/formatNameProduct";
 import { viewProductDetail } from "../redux/Slice/product";
-import { message } from "antd";
+import { message, Pagination } from "antd";
 import Footer from "./Footer";
+import { BASE_URL } from "../constant/constant";
 
 const ViewAllProduct = () => {
     const [category, setCategory] = useState([]);
@@ -40,22 +40,28 @@ const ViewAllProduct = () => {
 
     const fetchData = async () => {
         try {
-            const categoryApi = await axios.get("http://localhost:8080/category");
+            const categoryApi = await axios.get(`${BASE_URL}/category`);
             setCategory(categoryApi.data);
 
-            const productApi = await axios.get("http://localhost:8080/products");
+            const productApi = await axios.get(`${BASE_URL}/products`);
 
             const queryParams = new URLSearchParams(location.search);
             const filterCategory = queryParams.get('category');
             const filterRating = queryParams.get('rating');
             const filterPriceFrom = queryParams.get('priceFrom');
             const filterPriceTo = queryParams.get('priceTo');
+            const filterName = queryParams.get('name');
+
             setSelectedCategory(filterCategory)
 
             let filteredProducts = productApi.data.filter(product => product.status === "ok");
 
             if (filterCategory) {
                 filteredProducts = filteredProducts.filter(product => product.category.name === filterCategory);
+            }
+
+            if (filterName) {
+                filteredProducts = filteredProducts.filter(product => product.name.toLowerCase().includes(filterName.toLowerCase()));  // Thêm dòng này để lọc sản phẩm theo tên
             }
 
             const updatedArrayProduct = await Promise.all(filteredProducts.map(async (product) => {
@@ -91,12 +97,9 @@ const ViewAllProduct = () => {
     const indexOfFirstProduct = indexOfLastProduct - reviewsPerPage;
     const currentProducts = allProduct?.slice(indexOfFirstProduct, indexOfLastProduct);
 
-    const totalPages = Math.ceil(allProduct?.length / reviewsPerPage);
-
-
     const getStar = async (idProduct) => {
         try {
-            const response = await axios.get(`http://localhost:8080/product/rate/${idProduct}`)
+            const response = await axios.get(`BASE_URL/product/rate/${idProduct}`)
             if (response.data.length === 0) {
                 return 0
             } else {
@@ -129,6 +132,8 @@ const ViewAllProduct = () => {
         }
         setProduct(sortedProducts);
     };
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
     return (
         <div style={{ background: "#F5F5F5" }}>
             <Header />
@@ -201,7 +206,9 @@ const ViewAllProduct = () => {
                             </Col>
                         </Row>
                         <Row>
-                            {currentProducts?.map(product => (
+                            {currentProducts
+                            ?.filter(product=>product?.remain!==0)
+                            ?.map(product => (
                                 <Col key={product.idProduct} xs={3} style={{ padding: "5px" }}>
                                     <div
                                         style={{ background: "white", padding: "10px", cursor: "pointer" }}
@@ -214,7 +221,7 @@ const ViewAllProduct = () => {
                                         />
                                         <div>
                                             <div style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis", lineHeight: "1.5", maxHeight: "3em" }}>
-                                                {truncateString(product?.name)}
+                                                {(product?.name)}
                                             </div>
                                             <div>
                                                 {product.sale === 0 ? (
@@ -258,7 +265,7 @@ const ViewAllProduct = () => {
                                 </Col>
                             ))}
                         </Row>
-                        {totalPages > 1 && (
+                        {/* {totalPages > 1 && (
                             <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
                                 <Button
                                     variant="secondary"
@@ -292,7 +299,15 @@ const ViewAllProduct = () => {
                                     {">"}
                                 </Button>
                             </div>
-                        )}
+                        )} */}
+                        <div style={{ display: "flex", justifyContent: "center", marginTop: "20px", alignItems: "center" }}>
+                            <Pagination
+                                current={currentPage}
+                                pageSize={reviewsPerPage}
+                                total={allProduct?.length}
+                                onChange={paginate}
+                            />
+                        </div>
                     </Col>
                 </Row>
             </Container>

@@ -1,17 +1,17 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Header from "../Header";
 import { Col, Container, FormLabel, Row } from "react-bootstrap";
 import { Checkbox, message } from "antd";
 import Footer from "../Footer";
 import formatMoney from "../../function/formatMoney";
-import formatNameProduct from "../../function/formatNameProduct";
 import { viewProductDetail } from "../../redux/Slice/product";
 import { useDispatch, useSelector } from "react-redux";
+import { BASE_URL } from "../../constant/constant";
 
 const Cart = () => {
-    const { idUser } = useParams();
+    const [idUser] = useState(JSON.parse(localStorage.getItem("user"))?.id)
     const [carts, setCarts] = useState([]);
     const [shops, setShops] = useState([]);
     const dispatch = useDispatch();
@@ -20,22 +20,32 @@ const Cart = () => {
     const [selectedItem, setSelectedItem] = useState(checkedItem);
     const [totalPrice, setTotalPrice] = useState(0);
     const [selectedCart, setSelectedCart] = useState([]);
+    const token = JSON.parse(localStorage.getItem("user"))?.token
 
     useEffect(() => {
-        fetchData();
-        setSelectedItem(checkedItem);
-    }, [idUser]);
+        if (!token) {
+            // Chuyển hướng đến trang đăng nhập nếu không có token
+            navigate('/signin');
+        } else {
+            fetchData();
+        }
+    }, [token, navigate])
 
     const fetchData = async () => {
         try {
-            const cartsApi = await axios.get(`http://localhost:8080/cart/${idUser}`);
+            const cartsApi = await axios.get(`${BASE_URL}/cart/${idUser}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
             setCarts(
                 cartsApi.data
                     .map((cart) => ({
                         ...cart
                     }))
                     .reverse()
-            );
+            )
             const arrayShop = cartsApi.data.reverse().map((cart) => cart.product.shop);
             const uniqueShops = Array.from(
                 new Map(arrayShop.map((item) => [item.id, item])).values()
@@ -102,9 +112,13 @@ const Cart = () => {
             setCarts(updatedCarts);
             setSelectedItem(updatedSelectedItems);
 
-            await axios.post(
-                `http://localhost:8080/cart/handleQuantity?idCart=${idCart}&quantity=${quantityChange}`
-            );
+            await axios.post(`${BASE_URL}/cart/handleQuantity?idCart=${idCart}&quantity=${quantityChange}`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
         } catch (error) {
             console.log(error);
         }
@@ -112,13 +126,38 @@ const Cart = () => {
 
     const deleteCart = async (idCart) => {
         try {
-            const response = await axios.post(`http://localhost:8080/cart/delete?idCart=${idCart}`);
-            console.log(response);
+            await axios.post(`${BASE_URL}/cart/delete?idCart=${idCart}`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
             fetchData();
+            message.success("Xóa thành công")
         } catch (error) {
             console.log(error);
+            message.error(error.response.data)
         }
     };
+    const deleteAllCart = async () => {
+        try {
+            await axios.post(`${BASE_URL}/cart/deleteAll?idUser=${idUser}`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+            setCarts([])
+            setShops([])
+            fetchData()
+            message.success("Xóa thành công")
+        } catch (error) {
+            message.error(error.response.data)
+            console.log(error);
+        }
+    }
     const viewDetailProduct = (product) => {
         dispatch(viewProductDetail(product));
         localStorage.setItem("item", JSON.stringify(product));
@@ -193,16 +232,16 @@ const Cart = () => {
             message.error("Bạn chưa chọn sản phẩm nào. ");
         } else {
             localStorage.setItem("order", JSON.stringify(selectedCart))
-            localStorage.setItem("shopOrder",JSON.stringify(shops))
+            localStorage.setItem("shopOrder", JSON.stringify(shops?.filter(shop => selectedCart.some(selectedCart => selectedCart.product.shop.id === shop.id))))
             navigate("/order");
         }
     };
 
     return (
         <div style={{ background: "#F5F5F5" }}>
-            <Header />
+            <Header cart={carts?.length } />
 
-            <Container style={{ background: "white", padding: "20px 20px", color: "#FC5731" ,borderBottom:"solid 1px #F5F5F5"}}>
+            <Container style={{ background: "white", padding: "20px 20px", color: "#FC5731", borderBottom: "solid 1px #F5F5F5" }}>
                 <div style={{ fontSize: "25px" }}>Giỏ hàng</div>
             </Container>
 
@@ -255,7 +294,7 @@ const Cart = () => {
                             }}
                         >
                             <img
-                                src={`../images/avatar/${shop?.avatar}`}
+                                src={`${shop?.avatar}`}
                                 alt="avatar"
                                 width={"100%"}
                                 style={{
@@ -305,8 +344,11 @@ const Cart = () => {
                                         xs={6}
                                         style={{ padding: "0" }}
                                     >
-                                        {formatNameProduct(cart.product?.name)}
+                                        <div style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis", lineHeight: "1.5", maxHeight: "3em" }}>
+                                            {(cart.product?.name)}
+                                        </div>
                                     </Col>
+
                                 </Col>
                                 <Col
                                     xs={7}
@@ -486,6 +528,7 @@ const Cart = () => {
                             onMouseLeave={(e) =>
                                 (e.currentTarget.style.color = "black")
                             }
+                            onClick={deleteAllCart}
                         >
                             Xóa hết
                         </button>

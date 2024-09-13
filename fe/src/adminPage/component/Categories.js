@@ -6,6 +6,8 @@ import axios from "axios"
 import Footer from "../Footer"
 import uploadImg from "../../function/uploadImg"
 import { message, Spin } from "antd"
+import { useNavigate } from "react-router-dom"
+import { BASE_URL } from "../../constant/constant"
 
 const MAX_TOTAL_SIZE_MB = 1
 const MAX_TOTAL_SIZE_BYTES = MAX_TOTAL_SIZE_MB * 1024 * 1024
@@ -16,14 +18,21 @@ const Categories = () => {
     const [newImage, setNewImage] = useState('');
     const [newName, setNewName] = useState('')
     const [loading, setLoading] = useState(false)
+    const token = JSON.parse(localStorage.getItem("admin"))?.token
+    const navigate = useNavigate()
 
     useEffect(() => {
-        fetchData()
-    }, [])
+        if (!token) {
+            // Chuyển hướng đến trang đăng nhập nếu không có token
+            navigate('/admin/signin');
+        } else {
+            fetchData();
+        }
+    }, [token, navigate])
 
     const fetchData = async () => {
         try {
-            const categoryApi = await axios.get("http://localhost:8080/category")
+            const categoryApi = await axios.get(`${BASE_URL}/category`)
             setCategory(categoryApi.data.filter(category => category.name !== "Khác"))
         } catch (error) {
             console.log(error);
@@ -53,13 +62,18 @@ const Categories = () => {
             image: urlImage[0]
         }
         try {
-            const response = await axios.post("http://localhost:8080/category/add", dto)
+            const response = await axios.post(`${BASE_URL}/category/add`, dto,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
             console.log(response);
+            message.success("Thêm mới thành công")
         } catch (error) {
             message.error("Đã xảy ra lỗi")
             console.log(error);
         }
-        message.success("Thêm mới thành công")
         setNewName('')
         setNewImage('')
         setLoading(false)
@@ -100,7 +114,7 @@ const Categories = () => {
                                 <img src={newImage} style={{ height: "150px", width: "auto", marginRight: "40px" }} />
                                 <input type="file" name="image" onChange={handleFileChange} />
                                 <div style={{ width: "300px", textAlign: "center", marginTop: "40px" }}>
-                                    <button onClick={ addNewCategory} style={{ border: "none", background: "#EE4D2D", color: "white", borderRadius: "5px", padding: "10px 20px" }}>Thêm mới</button>
+                                    <button onClick={addNewCategory} style={{ border: "none", background: "#EE4D2D", color: "white", borderRadius: "5px", padding: "10px 20px" }}>Thêm mới</button>
                                 </div>
                             </Container>
                         )}

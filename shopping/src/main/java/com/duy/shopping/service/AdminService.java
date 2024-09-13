@@ -10,4 +10,7 @@ public interface AdminService {
     ResponseEntity<?> getAllReportProduct();
     ResponseEntity<?> acceptReportAccount(long idReportAccount, long idUser, int timeLockAccount);
     ResponseEntity<?> rejectReportProduct(long idReportProduct, String reasonReject);
+    ResponseEntity<?> acceptReportProduct(long idReportAccount);
+    ResponseEntity<?> getAllOrder();
+    ResponseEntity<?> getAllOrderItem();
 }

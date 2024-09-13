@@ -5,12 +5,13 @@ import { LiaProductHunt } from "react-icons/lia";
 import { CiShoppingCart } from "react-icons/ci";
 import { MdOutlineErrorOutline } from "react-icons/md";
 import { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { BiCategory } from "react-icons/bi";
 
 const SideBar = () => {
     const [hoveredButton, setHoveredButton] = useState(null);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const location = useLocation(); // Get the current location
 
     // Button style
     const buttonStyle = {
@@ -36,6 +37,8 @@ const SideBar = () => {
         fontSize: "25px",
         marginRight: "15px"
     };
+
+    // Define the links and their corresponding button texts
     const links = [
         "/admin/overview",
         "/admin/accounts",
@@ -44,14 +47,28 @@ const SideBar = () => {
         "/admin/orders",
         "/admin/reports"
     ];
+    
+    const buttonTexts = [
+        "Tổng quan",
+        "Người dùng",
+        "Danh mục",
+        "Sản phẩm",
+        "Đơn hàng",
+        "Báo cáo vi phạm"
+    ];
+
+    // Determine which button should be highlighted
+    const currentPath = location.pathname;
+
     return (
         <Container>
-            {["Tổng quan", "Người dùng", "Danh mục", "Sản phẩm", "Đơn hàng", "Báo cáo vi phạm"].map((text, index) => (
+            {buttonTexts.map((text, index) => (
                 <Button
                     key={index}
                     style={{
                         ...buttonStyle,
-                        ...(hoveredButton === index ? hoveredButtonStyle : {})
+                        ...(currentPath === links[index] ? hoveredButtonStyle : {}),
+                        ...(hoveredButton === index && currentPath !== links[index] ? hoveredButtonStyle : {})
                     }}
                     onMouseEnter={() => setHoveredButton(index)}
                     onMouseLeave={() => setHoveredButton(null)}

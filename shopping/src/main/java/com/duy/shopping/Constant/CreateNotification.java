@@ -1,14 +1,14 @@
-package com.duy.shopping.Constant;
+package com.duy.shopping.constant;
 
-import com.duy.shopping.Repository.NotificationRepository;
-import com.duy.shopping.Repository.UserRepository;
+import com.duy.shopping.repository.NotificationRepository;
+import com.duy.shopping.repository.UserRepository;
 import com.duy.shopping.model.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-import static com.duy.shopping.Constant.Constant.UNREAD;
+import static com.duy.shopping.constant.Constant.UNREAD;
 @Service
 public class CreateNotification {
 

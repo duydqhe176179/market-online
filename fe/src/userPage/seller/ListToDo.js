@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
+import { BASE_URL } from "../../constant/constant";
 
 const ListToDo = ({ shop }) => {
     const [orders, setOrders] = useState()
@@ -13,10 +14,10 @@ const ListToDo = ({ shop }) => {
 
     const fetchData = async () => {
         try {
-            const orderApi = await axios.get(`http://localhost:8080/shop/allOrder?idShop=${shop.id}`)
+            const orderApi = await axios.get(`${BASE_URL}/shop/allOrder?idShop=${shop.id}`)
             setOrders(orderApi.data)
 
-            const productsApi = await axios.get(`http://localhost:8080/product/shop/${shop?.id}`)
+            const productsApi = await axios.get(`${BASE_URL}/product/shop/${shop?.id}`)
             setProducts(productsApi.data)
         } catch (error) {
             console.log(error);

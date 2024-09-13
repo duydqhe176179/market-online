@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class ProductDto {
+    private Long idProduct;
     private Long idShop;
     private List<String> image;
     private String name;

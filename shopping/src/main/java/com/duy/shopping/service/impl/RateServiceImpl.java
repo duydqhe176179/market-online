@@ -1,9 +1,9 @@
 package com.duy.shopping.service.impl;
 
-import com.duy.shopping.Repository.OrderItemRepo;
-import com.duy.shopping.Repository.ProductRepository;
-import com.duy.shopping.Repository.RateRepository;
-import com.duy.shopping.Repository.UserRepository;
+import com.duy.shopping.repository.OrderItemRepo;
+import com.duy.shopping.repository.ProductRepository;
+import com.duy.shopping.repository.RateRepository;
+import com.duy.shopping.repository.UserRepository;
 import com.duy.shopping.dto.RateDto;
 import com.duy.shopping.model.Product;
 import com.duy.shopping.model.RateProduct;
@@ -48,6 +48,11 @@ public class RateServiceImpl implements RateService {
     }
 
     @Override
+    public List<RateProduct> getRateProduct(long id) {
+        return rateRepository.findRateProductByIdProduct(id);
+    }
+
+    @Override
     public ResponseEntity<?> addRateProduct(RateDto rateDto) {
         RateProduct rateProduct = new RateProduct();
         rateProduct.setProduct(productRepository.findByIdProduct(rateDto.getIdProduct()).get());
@@ -60,5 +65,11 @@ public class RateServiceImpl implements RateService {
         rateProduct.setDateReview(currentDate);
         rateRepository.save(rateProduct);
         return ResponseEntity.ok(rateProduct);
+    }
+
+    @Override
+    public ResponseEntity<?> getRateOfOrderItem(long idOrderItem) {
+        RateProduct rate=rateRepository.findByIdOrderItem(idOrderItem);
+        return ResponseEntity.ok(rate);
     }
 }

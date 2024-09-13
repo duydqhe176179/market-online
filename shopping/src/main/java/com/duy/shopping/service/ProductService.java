@@ -8,6 +8,10 @@ import java.util.List;
 
 
 public interface ProductService {
+    List<Product> getBestSeller();
+    Product getProduct(long id);
     ResponseEntity<?> addProduct(ProductDto productDto);
+    ResponseEntity<?> updateProduct(ProductDto productDto);
+    List<Product> getAllProductOfShop(long id);
     List<Product> getAllProduct();
 }

@@ -7,10 +7,11 @@ import {
     MDBCardBody,
     MDBInput,
 } from 'mdb-react-ui-kit';
-import { Spin } from 'antd';
+import { message, Spin } from 'antd';
 import { Button } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {BASE_URL} from "../../constant/constant"
 
 function SigninAdmin() {
     const [username, setUsername] = useState('');
@@ -27,25 +28,20 @@ function SigninAdmin() {
         setLoading(true)
         const hash = btoa(`${username}:${password}`);
         try {
-            const response = await axios.post("http://localhost:8080/signin", {},
+            const response = await axios.post(`${BASE_URL}/signinAdmin`, {},
                 {
                     headers: {
                         Authorization: `Basic ${hash}`,
                     },
                 })
             console.log(response);
-            if (response.data === "Tên đăng nhập hoặc mật khẩu không đúng") {
-                setError({ code: 1, message: "Tên đăng nhập hoặc mật khẩu không đúng" })
-            } else if (response.data === "Xảy ra lỗi khi đăng nhập") {
-                setError({ code: 1, message: "Xảy ra lỗi khi đăng nhập" })
-            } else {
-                localStorage.setItem("admin", JSON.stringify(response.data));
-                localStorage.setItem("isAdminAuthenticated", true);
-                navigate("/admin")
-                // Redirect to a protected route
-            }
+
+            localStorage.setItem("admin", JSON.stringify(response.data));
+            localStorage.setItem("isAdminAuthenticated", true);
+            navigate("/admin")
         } catch (error) {
             console.log(error);
+            message.error(error.response.data)
         }
         setLoading(false)
     }

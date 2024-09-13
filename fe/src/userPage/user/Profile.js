@@ -6,12 +6,13 @@ import uploadImg from "../../function/uploadImg";
 import { Spin } from "antd";
 import axios from "axios";
 import reloadUser from "../../function/reloadUser";
+import { BASE_URL } from "../../constant/constant";
 
 const MAX_TOTAL_SIZE_MB = 1
 const MAX_TOTAL_SIZE_BYTES = MAX_TOTAL_SIZE_MB * 1024 * 1024
 
 const Profile = () => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem("user"))||null);
     const [avatar, setAvatar] = useState('');
     const [day, setDay] = useState('');
     const [month, setMonth] = useState('');
@@ -23,13 +24,16 @@ const Profile = () => {
     useEffect(() => {
         const userLocal = JSON.parse(localStorage.getItem("user"));
         setUser(userLocal);
+        if(!userLocal){
+            navigate('/signin')
+        }
 
         if (userLocal?.birthday) {
             const date = new Date(userLocal.birthday);
             setDay(date.getDate());
             setMonth(date.getMonth() + 1);
             setYear(date.getFullYear());
-        }else{
+        } else {
             setDay('1');
             setMonth('1');
             setYear('2024');
@@ -77,25 +81,33 @@ const Profile = () => {
     };
 
     const updateUser = async () => {
-        setLoading(true)
-        const urlImage = await uploadImg(selectedFile)
+        setLoading(true);
+        
+        let urlImage = user.avatar; // Giữ nguyên avatar hiện tại nếu không có tệp mới
+    
+        if (selectedFile) {
+            urlImage = await uploadImg(selectedFile);
+            urlImage = urlImage[0]; // Lấy URL hình ảnh nếu tệp mới được chọn
+        }
+    
         const userUpdate = {
             ...user,
-            birthday: `${year}-${month.length === 1 ? `0${month}` : month}-${day.length === 1 ? `0${day}` : day}`,
-            avatar: urlImage[0]
+            birthday: `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`,
+            avatar: urlImage
         };
-        // console.log(userUpdate);
+    
         try {
-            const response = await axios.post("http://localhost:8080/user/updateUser", userUpdate)
+            const response = await axios.post(`${BASE_URL}/user/updateUser`, userUpdate);
             console.log(response.data);
         } catch (error) {
             console.log(error);
         }
-        setUser(reloadUser(user.id))
-        setLoading(false)
+        reloadUser(user.id)
+        setUser(reloadUser(user.id));
+        setLoading(false);
         window.location.reload();
-
     };
+    
 
     return (
         <Container style={{ background: "white", padding: "20px 20px" }}>
@@ -158,8 +170,19 @@ const Profile = () => {
                                     </tr>
                                     <tr>
                                         <td>Địa chỉ</td>
-                                        <td style={{ padding: "5px" }}>
-                                            <textarea style={{ width: "100%", height: "70px" }} value={user?.address || ''} onChange={(e) => setUser({ ...user, address: e.target.value })}></textarea>
+                                        <td style={{ padding: "12px" }}>
+                                            {user?.address ? (
+                                                <span>
+                                                    {user.address}
+                                                    <button style={{ fontSize: "15px", color: "#888888", border: "none", background: "none" }}
+                                                        onClick={() => navigate("/user/address")}
+                                                    >
+                                                        <FiEdit2 />
+                                                    </button>
+                                                </span>
+                                            ) : (
+                                                <Link to={"/user/address"}>Thêm</Link>
+                                            )}
                                         </td>
                                     </tr>
                                 </tbody>

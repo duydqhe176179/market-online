@@ -9,7 +9,8 @@ import axios from "axios"
 import Footer from "./Footer";
 import BestSeller from "./product/bestSeller";
 import AllProduct from "./shop/allProduct"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { BASE_URL } from "../constant/constant";
 
 export default function Home() {
     const settings = {
@@ -22,14 +23,15 @@ export default function Home() {
 
     const [category, setCategory] = useState([])
     const [product, setProduct] = useState()
+    const navigate=useNavigate()
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const categoryApi = await axios.get("http://localhost:8080/category")
+                const categoryApi = await axios.get(`${BASE_URL}/category`)
                 setCategory(categoryApi.data.filter(category=>category.name!=="Khác"))
 
-                const productApi = await axios.get("http://localhost:8080/products")
+                const productApi = await axios.get(`${BASE_URL}/products`)
                 setProduct(productApi.data)
             } catch (error) {
                 console.log(error);
@@ -62,7 +64,7 @@ export default function Home() {
                 <Row>
                     <h5 style={{ color: "#A17575" }}>Danh mục</h5>
                     {category?.map(category => (
-                        <Col key={category.id} xs={1}>
+                        <Col key={category.id} xs={1} onClick={()=>navigate(`/allProduct?category=${category?.name}`)}>
                             <img src={`${category.image}`} style={{ height: "100px", width: "100px" }} alt="..." />
                             <div style={{ textAlign: "center" }}>{category.name}</div>
                         </Col>

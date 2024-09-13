@@ -13,6 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button, Container, Form } from "react-bootstrap";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { BASE_URL } from "../../constant/constant";
 
 export default function SignupE() {
     const nav = useNavigate()
@@ -43,7 +44,7 @@ export default function SignupE() {
     useEffect(() => {
         const getAllAccount = async () => {
             try {
-                const accountApi = await axios.get("http://localhost:8080/users")
+                const accountApi = await axios.get(`${BASE_URL}/users`)
                 setAllAccount(accountApi.data)
             } catch (error) {
                 console.log(error);
@@ -70,7 +71,7 @@ export default function SignupE() {
         setLoading(true)
         e.preventDefault()
         if (errorEMAIL.code && errorUSER.code && criteria.hasUppercase && criteria.hasDigit && criteria.minLength) {
-            await axios.post("http://localhost:8080/signup", account)
+            await axios.post(`${BASE_URL}/signup`, account)
             Swal.fire({
                 position: 'center',
                 icon: 'success',
@@ -91,7 +92,7 @@ export default function SignupE() {
             <div style={{ backgroundColor: "#FBFBFB", padding: "15px" }}>
                 <Container>
                     <div style={{ display: "flex" }}>
-                        <Link to="/"><img src="../images/logo.png" alt="Logo" style={{ height: "70px" }} /></Link>
+                        <Link to="/"><img src="../images/logo2.png" alt="Logo" style={{ height: "70px" }} /></Link>
                         <h4 className="fw-normal mb-3 ps-5 " style={{ marginTop: "20px" }}>Trang đăng ký</h4>
 
                     </div>

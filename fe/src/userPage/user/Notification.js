@@ -1,11 +1,12 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Container, Button } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import formatDate from "../../function/formatDate";
-import { READED, UNREAD } from "../../constant/constant";
+import { BASE_URL, READED, UNREAD } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
+import { Pagination } from "antd";
 
-const Notification = () => {
+const Notification = ({ notifications, markAsRead, markAsReadAll }) => {
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
     const [noti, setNoti] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -13,14 +14,17 @@ const Notification = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchData();
+        if (!user) {
+            navigate('/signin')
+        } else {
+            fetchData();
+        }
     }, []);
 
     const fetchData = async () => {
         try {
-            const notiApi = await axios.post(`http://localhost:8080/user/notification?idUser=${user?.id}`);
+            const notiApi = await axios.post(`${BASE_URL}/user/notification?idUser=${user?.id}`);
             setNoti(notiApi.data.reverse());
-            console.log(notiApi.data);
         } catch (error) {
             console.log(error);
         }
@@ -28,14 +32,10 @@ const Notification = () => {
 
     const readAllNoti = async () => {
         const notiUnread = noti?.filter(noti => noti.status === UNREAD);
-        const notiDto = [];
-        notiUnread.forEach(noti => {
-            notiDto.push({ id: noti?.id });
-        });
-
+        const notiDto = notiUnread.map(noti => ({ id: noti?.id }));
         try {
-            const response = await axios.post("http://localhost:8080/readAllNoti", notiDto);
-            console.log(response);
+            await axios.post(`${BASE_URL}/readAllNoti`, notiDto);
+            markAsReadAll()
         } catch (error) {
             console.log(error);
         }
@@ -46,8 +46,8 @@ const Notification = () => {
         const notiDto = [];
         notiDto.push({ id: idNoti });
         try {
-            const response = await axios.post("http://localhost:8080/readAllNoti", notiDto);
-            console.log(response);
+            await axios.post(`${BASE_URL}/readAllNoti`, notiDto);
+            markAsRead(idNoti);
         } catch (error) {
             console.log(error);
         }
@@ -62,16 +62,6 @@ const Notification = () => {
 
     // Change page
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-    // Move to the previous page
-    const prevPage = () => {
-        if (currentPage > 1) setCurrentPage(currentPage - 1);
-    };
-
-    // Move to the next page
-    const nextPage = () => {
-        if (currentPage < Math.ceil(noti.length / notiPerPage)) setCurrentPage(currentPage + 1);
-    };
 
     return (
         <Container style={{ background: "white", padding: "20px 20px" }}>
@@ -90,19 +80,13 @@ const Notification = () => {
                     </div>
                 </button>
             ))}
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "20px", alignItems: "center" }}>
-                <Button variant="secondary" onClick={prevPage} disabled={currentPage === 1} style={{ margin: "0 5px" }}>{'<'}</Button>
-                {Array.from({ length: Math.ceil(noti.length / notiPerPage) }, (_, index) => (
-                    <Button key={index + 1} onClick={() => paginate(index + 1)}
-                        style={{
-                            margin: "0 5px", backgroundColor: currentPage === index + 1 ? "#F75530" : "white",
-                            color: currentPage === index + 1 ? "white" : "black",
-                            border: currentPage === index + 1 ? "none" : "1px solid #ccc"
-                        }}>
-                        {index + 1}
-                    </Button>
-                ))}
-                <Button variant="secondary" onClick={nextPage} disabled={currentPage === Math.ceil(noti.length / notiPerPage)} style={{ margin: "0 5px" }}>{'>'}</Button>
+            <div className="p" style={{ display: "flex", justifyContent: "center", marginTop: "20px", alignItems: "center" }}>
+                <Pagination
+                    current={currentPage}
+                    pageSize={notiPerPage}
+                    total={noti.length}
+                    onChange={paginate}
+                />
             </div>
         </Container>
     );

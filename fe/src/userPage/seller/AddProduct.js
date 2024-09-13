@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Col, Container, Row } from "react-bootstrap"
 import { Spin, message } from "antd";
 import uploadImg from "../../function/uploadImg";
+import { BASE_URL } from "../../constant/constant";
 
 const MAX_TOTAL_SIZE_MB = 3
 const MAX_TOTAL_SIZE_BYTES = MAX_TOTAL_SIZE_MB * 1024 * 1024
@@ -15,7 +16,7 @@ const AddProduct = () => {
     const user = JSON.parse(localStorage.getItem("user"))
 
     const [formData, setFormData] = useState({
-        idShop: user.id,
+        idShop: user?.id,
         image: [],
         name: '',
         material: '',
@@ -75,11 +76,12 @@ const AddProduct = () => {
         const dataToSubmit = { ...formData, image: urlImage }
         // console.log(dataToSubmit);
 
-        const submitResponse = await axios.post("http://localhost:8080/shop/addProduct", dataToSubmit)
+        const submitResponse = await axios.post(`${BASE_URL}/shop/addProduct`, dataToSubmit)
         console.log(submitResponse.data);
         setLoading(false)
         message.success("Thêm sản phẩm mới thành công")
         setFormData({
+            idProduct:'',
             idShop: user.id,
             image: [],
             name: '',
@@ -94,12 +96,12 @@ const AddProduct = () => {
         setPreview([])
     }
 
-    
+
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const categoryApi = await axios.get("http://localhost:8080/category")
+                const categoryApi = await axios.get(`${BASE_URL}/category`)
                 // console.log(categoryApi.data);
                 setCategory(categoryApi.data)
             } catch (error) {
@@ -154,10 +156,17 @@ const AddProduct = () => {
                             ))}
                         </div>
                     )}
-
-                    <div style={formInputStyle}>
-                        <label htmlFor="name" style={labelStyle} >Tên sản phẩm: </label>
-                        <input type="text" id="name" name="name" value={formData.name} style={inputStyle} onChange={handleInputChange} />
+                    <div style={{ ...formInputStyle, display: 'flex', alignItems: 'center' }}>
+                        <label htmlFor="name" style={{ ...labelStyle, marginRight: '10px' }}>Tên sản phẩm: </label>
+                        <textarea
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            style={inputStyle}
+                            onChange={handleInputChange}
+                            rows="2"
+                            cols="105"
+                        />
                     </div>
                     <div style={{ display: "flex" }}>
                         <div style={{ ...formInputStyle, marginRight: "150px" }}>

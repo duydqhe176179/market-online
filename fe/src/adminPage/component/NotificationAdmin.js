@@ -4,9 +4,10 @@ import SideBar from "./SideBar"
 import Footer from "../Footer"
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { READED, UNREAD } from "../../constant/constant"
+import { BASE_URL, READED, UNREAD } from "../../constant/constant"
 import { useNavigate } from "react-router-dom"
 import formatDate from "../../function/formatDate"
+import { Pagination } from "antd"
 
 const NotificationAdmin = () => {
     const [admin] = useState(JSON.parse(localStorage.getItem("admin")));
@@ -21,7 +22,7 @@ const NotificationAdmin = () => {
 
     const fetchData = async () => {
         try {
-            const notiApi = await axios.post(`http://localhost:8080/user/notification?idUser=${admin?.id}`);
+            const notiApi = await axios.post(`${BASE_URL}/user/notification?idUser=${admin?.id}`);
             setNoti(notiApi.data.reverse());
             console.log(notiApi.data);
         } catch (error) {
@@ -37,7 +38,7 @@ const NotificationAdmin = () => {
         });
 
         try {
-            const response = await axios.post("http://localhost:8080/readAllNoti", notiDto);
+            const response = await axios.post(`${BASE_URL}/readAllNoti`, notiDto);
             console.log(response);
         } catch (error) {
             console.log(error);
@@ -49,7 +50,7 @@ const NotificationAdmin = () => {
         const notiDto = [];
         notiDto.push({ id: idNoti });
         try {
-            const response = await axios.post("http://localhost:8080/readAllNoti", notiDto);
+            const response = await axios.post(`${BASE_URL}/readAllNoti`, notiDto);
             console.log(response);
         } catch (error) {
             console.log(error);
@@ -102,18 +103,12 @@ const NotificationAdmin = () => {
                                 </button>
                             ))}
                             <div style={{ display: "flex", justifyContent: "center", marginTop: "20px", alignItems: "center" }}>
-                                <Button variant="secondary" onClick={prevPage} disabled={currentPage === 1} style={{ margin: "0 5px" }}>{'<'}</Button>
-                                {Array.from({ length: Math.ceil(noti.length / notiPerPage) }, (_, index) => (
-                                    <Button key={index + 1} onClick={() => paginate(index + 1)}
-                                        style={{
-                                            margin: "0 5px", backgroundColor: currentPage === index + 1 ? "#F75530" : "white",
-                                            color: currentPage === index + 1 ? "white" : "black",
-                                            border: currentPage === index + 1 ? "none" : "1px solid #ccc"
-                                        }}>
-                                        {index + 1}
-                                    </Button>
-                                ))}
-                                <Button variant="secondary" onClick={nextPage} disabled={currentPage === Math.ceil(noti.length / notiPerPage)} style={{ margin: "0 5px" }}>{'>'}</Button>
+                                <Pagination
+                                    current={currentPage}
+                                    pageSize={notiPerPage}
+                                    total={noti?.length}
+                                    onChange={paginate}
+                                />
                             </div>
                         </Container>
                     </Col>

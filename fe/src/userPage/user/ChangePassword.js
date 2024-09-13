@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { message } from "antd";
 import reloadUser from "../../function/reloadUser";
+import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../constant/constant";
 const ChangePassword = () => {
     const [user, setUser] = useState(null);
     const [currentPassword, setCurrentPassword] = useState('');
@@ -13,9 +15,13 @@ const ChangePassword = () => {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmNewPass, setShowConfirmNewPass] = useState(false);
+    const navigate = useNavigate()
 
     useEffect(() => {
         const userLocal = JSON.parse(localStorage.getItem("user"));
+        if (!userLocal) {
+            navigate('/signin')
+        }
         setUser(userLocal);
     }, []);
 
@@ -25,11 +31,39 @@ const ChangePassword = () => {
         position: "relative" // Needed for positioning the eye icon
     };
 
+    const validatePassword = (password) => {
+        const criteria = {
+            hasUppercase: /[A-Z]/.test(password),
+            hasDigit: /\d/.test(password),
+            minLength: password.length >= 8
+        };
+
+        if (!criteria.hasUppercase) {
+            return 'Mật khẩu mới phải có ít nhất một chữ hoa.';
+        }
+        if (!criteria.hasDigit) {
+            return 'Mật khẩu mới phải có ít nhất một chữ số.';
+        }
+        if (!criteria.minLength) {
+            return 'Mật khẩu mới phải có ít nhất 8 ký tự.';
+        }
+        return '';
+    };
+
     const handleChangePassword = async () => {
         setError('');
 
+ if (!currentPassword || !newPassword || !confirmNewPass) {
+            setError('Vui lòng điền đầy đủ tất cả các trường.');
+            return;
+        }
 
-
+        const validationError = validatePassword(newPassword);
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
+        
         if (newPassword !== confirmNewPass) {
             setError('Mật khẩu xác nhận không khớp');
             return;
@@ -42,7 +76,7 @@ const ChangePassword = () => {
         changePass.push(confirmNewPass)
 
         try {
-            const response = await axios.post("http://localhost:8080/user/changePassword", changePass)
+            const response = await axios.post(`${BASE_URL}/user/changePassword`, changePass)
             if (response.status === 200) {
                 message.success(response.data)
                 setUser(reloadUser(user.id))

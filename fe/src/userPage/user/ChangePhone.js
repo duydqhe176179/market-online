@@ -3,13 +3,19 @@ import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import reloadUser from "../../function/reloadUser";
 import { message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../constant/constant";
 const ChangePhone = () => {
     const [user, setUser] = useState(null);
     const [newPhone, setNewPhone] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate()
 
     useEffect(() => {
         const userLocal = JSON.parse(localStorage.getItem("user"));
+        if (!userLocal) {
+            navigate('/signin')
+        }
         setUser(userLocal);
     }, []);
 
@@ -29,11 +35,16 @@ const ChangePhone = () => {
             phone: newPhone
         };
         try {
-            const response = await axios.post("http://localhost:8080/user/updateUser", newUser);
-            setUser(reloadUser(user.id)) 
+            const response = await axios.post(`${BASE_URL}/user/updatePhone`, newUser);
+            setUser(reloadUser(user.id))
             message.success(response.data)
         } catch (error) {
             console.log(error);
+            if (error.response) {
+                message.error(error.response.data);
+            } else {
+                message.error("Có lỗi xảy ra!");
+            }
         }
     };
 

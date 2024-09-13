@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import axios from "axios"
 import Footer from "../Footer"
 import AllProduct from "./allProduct"
+import { BASE_URL } from "../../constant/constant"
 
 const ShopDetail = () => {
     const { id } = useParams()
@@ -12,7 +13,7 @@ const ShopDetail = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const shopApi=await axios.get(`http://localhost:8080/shop/${id}`)
+                const shopApi=await axios.get(`${BASE_URL}/shop/${id}`)
                 setAllProduct(shopApi.data.products)
                 console.log(shopApi.data.products);
             } catch (error) {

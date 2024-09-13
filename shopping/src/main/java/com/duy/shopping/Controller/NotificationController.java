@@ -1,4 +1,4 @@
-package com.duy.shopping.Controller;
+package com.duy.shopping.controller;
 
 import com.duy.shopping.dto.NotificationDto;
 import com.duy.shopping.service.NotificationService;
@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.duy.shopping.constant.Constant.URL_ORIGIN;
+
 @RestController
-@CrossOrigin("http://localhost:3000/")
+@CrossOrigin(URL_ORIGIN)
 public class NotificationController {
     @Autowired
     private NotificationService notificationService;

@@ -1,16 +1,26 @@
-package com.duy.shopping.Controller;
+package com.duy.shopping.controller;
 
-import com.duy.shopping.Repository.CartRepository;
+import com.duy.shopping.repository.CartRepository;
 import com.duy.shopping.dto.CartDto;
 import com.duy.shopping.model.Cart;
 import com.duy.shopping.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import static com.duy.shopping.constant.Constant.URL_ORIGIN;
 
 
 @RestController
-@CrossOrigin("http://localhost:3000/")
+@CrossOrigin(URL_ORIGIN)
+@RequestMapping("/cart")
 public class CartController {
     @Autowired
     private CartService cartService;
@@ -24,22 +34,23 @@ public class CartController {
         return ResponseEntity.ok(savedCart);
     }
 
-    @GetMapping("/cart/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getCartsByIdUser(@PathVariable long id) {
-        return ResponseEntity.ok(cartRepository.findCartsByIdUser(id));
+        return cartService.getCartByIdUser(id);
     }
 
-    @PostMapping("/cart/handleQuantity")
+    @PostMapping("/handleQuantity")
     public ResponseEntity<?> increaseCart(@RequestParam("idCart") long idCart, @RequestParam("quantity") int quantity) {
-        Cart cart = cartRepository.findCartById(idCart);
-        cart.setQuantity(cart.getQuantity() + quantity);
-        cartRepository.save(cart);
-        return ResponseEntity.ok(cart);
+        return cartService.handleQuantity(idCart, quantity);
     }
 
-    @PostMapping("/cart/delete")
+    @PostMapping("/delete")
     public ResponseEntity<?> deleteCart(@RequestParam("idCart") long idCart) {
-        cartRepository.deleteById(idCart);
-        return ResponseEntity.ok().build();
+        return cartService.deleteCart(idCart);
+    }
+
+    @PostMapping("/deleteAll")
+    public ResponseEntity<?> deleteAllCart(@RequestParam long idUser) {
+        return cartService.deleteAllCart(idUser);
     }
 }

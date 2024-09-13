@@ -1,7 +1,7 @@
 package com.duy.shopping.service.impl;
 
-import com.duy.shopping.Constant.Constant;
-import com.duy.shopping.Repository.NotificationRepository;
+import com.duy.shopping.constant.Constant;
+import com.duy.shopping.repository.NotificationRepository;
 import com.duy.shopping.dto.NotificationDto;
 import com.duy.shopping.model.Notification;
 import com.duy.shopping.service.NotificationService;

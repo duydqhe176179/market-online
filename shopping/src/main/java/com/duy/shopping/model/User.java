@@ -37,4 +37,5 @@ public class User {
     private Date dateSignup;
     private LocalDate birthday;
     private int status;
+    private int wallet;
 }

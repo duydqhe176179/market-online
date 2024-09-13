@@ -1,17 +1,18 @@
 package com.duy.shopping.service.impl;
 
-import com.duy.shopping.Repository.CartRepository;
-import com.duy.shopping.Repository.ProductRepository;
-import com.duy.shopping.Repository.UserRepository;
+import com.duy.shopping.repository.CartRepository;
+import com.duy.shopping.repository.ProductRepository;
+import com.duy.shopping.repository.UserRepository;
 import com.duy.shopping.dto.CartDto;
 import com.duy.shopping.model.Cart;
 import com.duy.shopping.model.Product;
 import com.duy.shopping.model.User;
 import com.duy.shopping.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -33,7 +34,6 @@ public class CartServiceImpl implements CartService {
             User user = userRepository.findById(cartDto.getIdUser())
                     .orElseThrow(() -> new RuntimeException("User not found with id: " + cartDto.getIdUser()));
 
-            // Retrieve product and handle if not found
             Product product = productRepository.findByIdProduct(cartDto.getIdProduct())
                     .orElseThrow(() -> new RuntimeException("Product not found with id: " + cartDto.getIdProduct()));
 
@@ -45,5 +45,34 @@ public class CartServiceImpl implements CartService {
         }
         cartRepository.save(cart);
         return cart;
+    }
+
+    @Override
+    public ResponseEntity<?> deleteCart(long idCart) {
+        Cart cart = cartRepository.findCartById(idCart);
+        if (cart != null) {
+            cartRepository.deleteById(idCart);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<?> deleteAllCart(long idUser) {
+        List<Cart> list = cartRepository.findCartsByIdUser(idUser);
+        cartRepository.deleteAll(list);
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<?> getCartByIdUser(long idUser) {
+        return ResponseEntity.ok(cartRepository.findCartsByIdUser(idUser));
+    }
+
+    @Override
+    public ResponseEntity<?> handleQuantity(long idCart, int quantity) {
+        Cart cart = cartRepository.findCartById(idCart);
+        cart.setQuantity(cart.getQuantity() + quantity);
+        cartRepository.save(cart);
+        return ResponseEntity.ok(cart);
     }
 }

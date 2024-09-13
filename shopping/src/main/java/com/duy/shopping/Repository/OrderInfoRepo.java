@@ -1,4 +1,4 @@
-package com.duy.shopping.Repository;
+package com.duy.shopping.repository;
 
 import com.duy.shopping.model.OrderInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +15,5 @@ public interface OrderInfoRepo extends JpaRepository<OrderInfo, Long> {
     List<OrderInfo> findByIdShop(Long idShop);
 
     Optional<OrderInfo> findById(Long orderId);
+    OrderInfo findByCode(String code);
 }

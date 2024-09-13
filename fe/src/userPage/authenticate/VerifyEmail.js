@@ -6,6 +6,7 @@ import Footer from "../Footer";
 import { IoMdHome } from "react-icons/io";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { BASE_URL } from "../../constant/constant";
 
 const VerifyEmail = () => {
     const [otp, setOtp] = useState(new Array(6).fill(""));
@@ -64,7 +65,7 @@ const VerifyEmail = () => {
         if (areAllElementsNumbers(otp)) {
             const otpString = otp.join('');
             try {
-                const response = await axios.post("http://localhost:8080/verifyEmail",
+                const response = await axios.post(`${BASE_URL}/verifyEmail`,
                     null,
                     {
                         params: { email: email, otp: otpString }
